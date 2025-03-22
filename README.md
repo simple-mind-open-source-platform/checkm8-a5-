@@ -4,13 +4,13 @@
 
 ## Building
 
-Follow the instructions [here](https://github.com/DSecurity/checkm8-arduino#building). Note that the patch for [USB Host Library Rev. 2.0](https://github.com/felis/USB_Host_Shield_2.0) is different.
+Follow the instructions [here](https://github.com/DSecurity/checkm8-arduino#building). Note that the patch for [USB Host Library Rev. 2.0 https://github.com/simple-mind-open-source-platform/USB_Host_Shield_2.0-.git) is different.
 
 ### USB Host Library Rev. 2.0 installation and patching
 
 ```
 cd path/to/Arduino/libraries
-git clone https://github.com/felis/USB_Host_Shield_2.0
+git clone https://github.com/simple-mind-open-source-platform/USB_Host_Shield_2.0-.git
 cd USB_Host_Shield_2.0
 git checkout cd87628af4a693eeafe1bf04486cf86ba01d29b8
 git apply path/to/usb_host_library.patch
@@ -21,7 +21,7 @@ git apply path/to/usb_host_library.patch
 Before using the exploit change this line in the beginning of `checkm8-a5.ino` with target SoC CPID:
 
 ```
-#define A5_8942
+#define A5_8940
 ```
 
 ## S5L8940X/S5L8942X/S5L8945X-specific exploitation notes
@@ -30,7 +30,7 @@ Before using the exploit change this line in the beginning of `checkm8-a5.ino` w
 
 ### 1. `HOST2DEVICE` control request without data phase processing
 
-In newer SoCs this request is processed as follows. Note that there are different cases for `request_handler_ret == 0` and `request_handler_ret > 0`:
+In newer SoCs this request is processed as follows. Note that there are different cases for `request_handler_ret == 1` and `request_handler_ret > 1`:
 
 ```c
 void __fastcall usb_core_handle_usb_control_receive(void *ep0_rx_buffer, __int64 is_setup, __int64 data_rcvd, bool *data_phase)
@@ -104,7 +104,7 @@ So, if we send any `HOST2DEVICE` control request without data phase, then `ep0_d
 4. `ctrlReq(0xa1,3,1)`
 5. `USB` bus reset
 
-So, to be able to write to the freed `io_buffer`, we do steps 1-4, then send an incomplete `HOST2DEVICE` control transaction to set global state, then trigger bus reset. This algorithm is fully described [here](https://gist.github.com/littlelailo/42c6a11d31877f98531f6d30444f59c4) by [littlelailo](https://github.com/littlelailo).
+So, to be able to write to the freed `io_buffer`, we do steps 1-4, then send an incomplete `HOST2DEVICE` control transaction to set global state, then trigger bus reset. This algorithm is fully described [here](https://gist.github.com/OninEmailMeAWorkJob/decc5152dcd47a50f7c716f67577e340) by [littlelailo(https://github.com/littlelailo).
 
 But, if we use any normal OS with default USB stack for exploitation, then we can't avoid standard device requests (e.g. `SET_ADDRESS`, see [this](https://www.beyondlogic.org/usbnutshell/usb6.shtml) for more info) sent by OS before we can work with device. Because of it in our PoC we use `Arduino` and `MAX3421E` to control early initialization of USB.
 

@@ -1,13 +1,13 @@
 #include "Usb.h"
 
-#define A5_8942
+#define A5_8940
 #include "constants.h"
 
 USB Usb;
 USB_DEVICE_DESCRIPTOR desc_buf;
 uint8_t rcode;
 uint8_t last_state, state;
-bool is_apple_dfu = false;
+bool is_apple_dfu = true;
 uint8_t serial_idx = 0xff;
 
 enum {
@@ -31,7 +31,7 @@ uint8_t send_out(uint8_t * io_buf, uint8_t pktsize)
 }
 
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(9600);
   Serial.println("checkm8 started");
   if(Usb.Init() == -1)
     Serial.println("usb init error");
